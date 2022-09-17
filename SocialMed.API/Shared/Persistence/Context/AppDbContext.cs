@@ -36,14 +36,11 @@ public class AppDbContext : DbContext
         builder.Entity<User>().Property(p => p.Name).IsRequired().HasMaxLength(50);
         builder.Entity<User>().Property(p => p.LastName).IsRequired().HasMaxLength(50);
         builder.Entity<User>().Property(p => p.Age).IsRequired();
-        builder.Entity<User>().Property(p => p.Image).IsRequired();
         builder.Entity<User>().Property(p => p.Email).IsRequired().HasMaxLength(200);
         builder.Entity<User>().Property(p => p.Specialist).IsRequired().HasMaxLength(70);
         builder.Entity<User>().Property(p => p.Recommendation).IsRequired();
         builder.Entity<User>().Property(p => p.WorkPlace).IsRequired();
-        builder.Entity<User>().Property(p => p.Password).IsRequired().HasMaxLength(80);
-        builder.Entity<User>().Property(p => p.Biography).IsRequired();
-        
+
         // Relationships
         builder.Entity<User>()
             .HasMany(p => p.Forums)
