@@ -1,95 +1,70 @@
 ﻿using AutoMapper;
+using SocialMed.API.Security.Authorization.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using SocialMed.API.Security.Domain.Models;
 using SocialMed.API.Security.Domain.Services;
+using SocialMed.API.Security.Domain.Services.Communication;
 using SocialMed.API.Security.Resources;
-using SocialMed.API.Shared.Extensions;
 
 namespace SocialMed.API.Security.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("/api/v1/[controller]")]
-public class UsersController : ControllerBase
+public class UsersController: ControllerBase
 {
     private readonly IUserService _userService;
     private readonly IMapper _mapper;
 
     public UsersController(IUserService userService, IMapper mapper)
     {
-        _mapper = mapper;
         _userService = userService;
+        _mapper = mapper;
     }
+
+    [AllowAnonymous]
+    [HttpPost("sign-in")]
+    public async Task<IActionResult> AuthenticateAsync(AuthenticateRequest request)
+    {
+        var response = await _userService.Authenticate(request);
+        return Ok(response);
+    }
+
+    [AllowAnonymous]
+    [HttpPost("sign-up")]
+    public async Task<IActionResult> RegisterAsync(RegisterRequest request)
+    {
+        await _userService.RegisterAsync(request);
+        return Ok(new {message = "Registration successful"});
+    }
+
     [HttpGet]
-    public async Task<IEnumerable<UserResource>> GetAllAsync()
+    public async Task<IActionResult> GetAllAsync()
     {
         var users = await _userService.ListAsync();
         var resources = _mapper.Map<IEnumerable<User>, IEnumerable<UserResource>>(users);
-
-        return resources;
-
+        return Ok(resources);
     }
 
     [HttpGet("{id}")]
-    public async Task<UserResource> GetByIdAsync(int id)
+    public async Task<IActionResult> GetByIdAsync(int id)
     {
-        var result = await _userService.FindByIdAsync(id);
-        var userResource = _mapper.Map<User, UserResource>(result);
-        return userResource;
+        var user = await _userService.GetByIdAsync(id);
+        var resource = _mapper.Map<User, UserResource>(user);
+        return Ok(resource);
     }
-    
-    [HttpGet("=%{email}&&{password}")]
-    public async Task<UserResource> GetByEmailAndPasswordAsync(string email, string password)
-    {
-        var result = await _userService.FindByEmailAndPasswordAsync(email, password);
-        var userResource = _mapper.Map<User, UserResource>(result);
-        return userResource;
-    }
-    [HttpPost]
-    public async Task<IActionResult> PostAsync([FromBody] SaveUserResource resource)
-    {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState.GetErrorMessages());
 
-        var user = _mapper.Map<SaveUserResource, User>(resource);
-
-        var result = await _userService.SaveAsync(user);
-
-        if (!result.Success)
-            return BadRequest(result.Message);
-
-        var userResource = _mapper.Map<User, UserResource>(result.Resource);
-
-        return Ok(userResource);
-    }
-    
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutAsync(int id, [FromBody] SaveUserResource resource)
+    public async Task<IActionResult> UpdateAsync(int id, UpdateRequest request)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState.GetErrorMessages());
-
-        var user= _mapper.Map<SaveUserResource, User>(resource);
-
-        var result = await _userService.UpdateAsync(id, user);
-
-        if (!result.Success)
-            return BadRequest(result.Message);
-
-        var userResource = _mapper.Map<User, UserResource>(result.Resource);
-
-        return Ok(userResource);
+        await _userService.UpdateAsync(id, request);
+        return Ok(new {message = "User updated successfully."});
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteAsync(int id)
+    public async Task<IActionResult> Delete(int id)
     {
-        var result = await _userService.DeleteAsync(id);
-        
-        if (!result.Success)
-            return BadRequest(result.Message);
-
-        var forumResource = _mapper.Map<User, UserResource>(result.Resource);
-
-        return Ok(forumResource);
+        await _userService.DeleteAsync(id);
+        return Ok(new {message = "User deleted successfully."});
     }
 }

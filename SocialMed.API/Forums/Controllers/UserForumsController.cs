@@ -2,10 +2,12 @@
 using Microsoft.AspNetCore.Mvc;
 using SocialMed.API.Forums.Domain.Services;
 using SocialMed.API.Forums.Resources;
+using SocialMed.API.Security.Authorization.Attributes;
 using SocialMed.API.SocialMedCenter.Domain.Models;
 
 namespace SocialMed.API.Forums.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("/api/v1/users/{userId}/forums")]
 public class UserForumsController: ControllerBase

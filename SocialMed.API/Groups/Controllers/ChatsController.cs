@@ -4,10 +4,12 @@ using SocialMed.API.Groups.Domain.Models;
 using SocialMed.API.Groups.Domain.Repositories;
 using SocialMed.API.Groups.Domain.Services;
 using SocialMed.API.Groups.Resources;
+using SocialMed.API.Security.Authorization.Attributes;
 using SocialMed.API.Shared.Extensions;
 
 namespace SocialMed.API.Groups.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("/api/v1/[controller]")]
 public class ChatsController : ControllerBase

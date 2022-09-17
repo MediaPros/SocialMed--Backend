@@ -26,13 +26,7 @@ public class UserRepository : BaseRepository, IUserRepository
     {
         return await _context.Users.FindAsync(id);
     }
-
-    public async Task<User> FindByEmailAndPasswordAsync(string email, string password)
-    {
-        return await _context.Users
-            .FirstOrDefaultAsync(p => p.Email == email&&p.Password==password);
-    }
-
+    
     public async Task<User> FindByNameAsync(string name)
     {
         return await _context.Users
@@ -42,13 +36,23 @@ public class UserRepository : BaseRepository, IUserRepository
     public async Task<User> FindByEmailAsync(string email)
     {
         return await _context.Users
-            .FirstOrDefaultAsync(p => p.Email == email);
+            .SingleOrDefaultAsync(p => p.Email == email);
     }
     
     public async Task<User> FindBySpecialistAsync(string specialist)
     {
         return await _context.Users
             .FirstOrDefaultAsync(p => p.Specialist == specialist);
+    }
+
+    public bool ExistsByEmail(string email)
+    {
+        return _context.Users.Any(p => p.Email == email);
+    }
+
+    public User FindById(int id)
+    {
+        return _context.Users.Find(id);
     }
 
     public void Update(User user)

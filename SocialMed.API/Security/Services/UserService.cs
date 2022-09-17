@@ -1,8 +1,12 @@
-﻿using SocialMed.API.Security.Domain.Models;
+﻿using AutoMapper;
+using SocialMed.API.Security.Authorization.Handlers.Interfaces;
+using SocialMed.API.Security.Domain.Models;
 using SocialMed.API.Security.Domain.Repositories;
 using SocialMed.API.Security.Domain.Services;
 using SocialMed.API.Security.Domain.Services.Communication;
+using SocialMed.API.Security.Exceptions;
 using SocialMed.API.Shared.Domain.Repositories;
+using BCryptNet = BCrypt.Net.BCrypt;
 
 namespace SocialMed.API.Security.Services;
 
@@ -10,23 +14,67 @@ public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IJwtHandler _jwtHandler;
+    private readonly IMapper _mapper;
 
-    public UserService(IUserRepository userRepository, IUnitOfWork unitOfWork)
+    public UserService(IUserRepository userRepository, IUnitOfWork unitOfWork, IJwtHandler jwtHandler, IMapper mapper)
     {
         _userRepository = userRepository;
         _unitOfWork = unitOfWork;
+        _jwtHandler = jwtHandler;
+        _mapper = mapper;
     }
     public async Task<IEnumerable<User>> ListAsync()
     {
         return await  _userRepository.ListAsync();
     }
 
-    public async Task<User> FindByIdAsync(int id)
+    public async Task<User> GetByIdAsync(int id)
     {
         var user = await _userRepository.FindByIdAsync(id);
         if (user == null)
-            return new User();
+            throw new KeyNotFoundException("User not found.");
         return user;
+    }
+
+    public async Task<AuthenticateResponse> Authenticate(AuthenticateRequest request)
+    {
+        var user = await _userRepository.FindByEmailAsync(request.Email);
+        //Console.WriteLine($"Request: {request.Email}, {request.Password}");
+        //Console.WriteLine($"User: {user.Id}, {user.Name}, {user.LastName}, {user.PasswordHash}");
+
+        if (user == null || !BCryptNet.Verify(request.Password, user.PasswordHash))
+        {
+            Console.WriteLine("Authentication Error");
+            throw new AppException("Username or password is incorrect.");
+        }
+        Console.WriteLine("Authentication successful. About to generate token.");
+        var response = _mapper.Map<AuthenticateResponse>(user);
+        Console.WriteLine($"Response: {response.Id}, {response.Name}, {response.LastName}, {response.Email}");
+        response.Token = _jwtHandler.GenerateToken(user);
+        Console.WriteLine($"Generated Token: {response.Token}");
+        return response;
+    }
+
+    public async Task RegisterAsync(RegisterRequest request)
+    {
+        if (_userRepository.ExistsByEmail(request.Email))
+            throw new AppException($"Email '{request.Email}' is already taken.");
+
+        var user = _mapper.Map<User>(request);
+
+        user.PasswordHash = BCryptNet.HashPassword(request.Password);
+        user.Recommendation = 0;
+
+        try
+        {
+            await _userRepository.AddAsync(user);
+            await _unitOfWork.CompleteAsync();
+        }
+        catch (Exception e)
+        {
+            throw new AppException($"An error occurred while saving the user: {e.Message}");
+        }
     }
 
     public async Task<User> FindByEmailAsync(string email)
@@ -37,99 +85,48 @@ public class UserService : IUserService
         return user;
     }
 
-    public async Task<User> FindByEmailAndPasswordAsync(string email, string password)
+    public async Task UpdateAsync(int id, UpdateRequest request)
     {
-        var user = await _userRepository.FindByEmailAndPasswordAsync(email,password);
-        if (user == null)
-            return new User();
+
+        var user = GetById(id);
+        var userWithEmail = await _userRepository.FindByEmailAsync(request.Email);
+        
+        if(userWithEmail != null && userWithEmail.Id != user.Id)
+            throw new AppException($"Email '{request.Email}' is already taken.");
+
+        if (!string.IsNullOrEmpty(request.Password))
+            user.PasswordHash = BCryptNet.HashPassword(request.Password);
+
+        _mapper.Map(request, user);
+        try
+        {
+            _userRepository.Update(user);
+            await _unitOfWork.CompleteAsync();
+        }
+        catch (Exception e)
+        {
+            throw new AppException($"An error occurred while updating the user: {e.Message}");
+        }
+    }
+
+    public async Task DeleteAsync(int id)
+    {
+        var user = GetById(id);
+        try
+        {
+            _userRepository.Remove(user);
+            await _unitOfWork.CompleteAsync();
+        }
+        catch (Exception e)
+        {
+            throw new AppException($"An error occurred while deleting the user: {e.Message}");
+        }
+    }
+
+    private User GetById(int id)
+    {
+        var user = _userRepository.FindById(id);
+        if (user == null) throw new KeyNotFoundException("User not found.");
         return user;
-    }
-
-
-    public async Task<UserResponse> SaveAsync(User user)
-    {
-        
-        var existingUser = await _userRepository.FindByEmailAsync(user.Email);
-        
-        
-
-        if (existingUser != null)
-            return new UserResponse("User already exist with this email.");
-        try
-        {
-            // Add Tutorial
-            await _userRepository.AddAsync(user);
-            
-            // Complete Transaction
-            await _unitOfWork.CompleteAsync();
-            
-            // Return response
-            return new UserResponse(user);
-
-        }
-        catch (Exception e)
-        {
-            // Error Handling
-            return new UserResponse($"An error occurred while saving the new user: {e.Message}");
-        }
-    }
-
-    public async Task<UserResponse> UpdateAsync(int id, User user)
-    {
-        
-        var existingUser = await _userRepository.FindByIdAsync(id);
-        if (existingUser==null)
-            return new UserResponse("Invalid User not exist");
-        
-
-        // Modify Fields
-
-        existingUser.Name = user.Name;  // revisar que funcione bien- check fields after action update
-        existingUser.LastName = user.LastName;
-        existingUser.Age = user.Age;
-        existingUser.Email = user.Email;
-        existingUser.Image = user.Image;
-        existingUser.Password = user.Password;
-        existingUser.WorkPlace = user.WorkPlace;
-        existingUser.Specialist = user.Specialist;
-        existingUser.Biography = user.Biography;
-        existingUser.Recommendation = user.Recommendation;
-        try
-        {
-            _userRepository.Update(existingUser);
-            await _unitOfWork.CompleteAsync();
-
-            return new UserResponse(existingUser);
-            
-        }
-        catch (Exception e)
-        {
-            // Error Handling
-            return new UserResponse($"An error occurred while updating the User: {e.Message}");
-        }
-    }
-
-    public async Task<UserResponse> DeleteAsync(int id)
-    {
-        var existingUser = await _userRepository.FindByIdAsync(id);
-        
-        // Validate chat
-
-        if (existingUser== null)
-            return new UserResponse("User not found.");
-        
-        try
-        {
-            _userRepository.Remove(existingUser);
-            await _unitOfWork.CompleteAsync();
-
-            return new UserResponse(existingUser);
-            
-        }
-        catch (Exception e)
-        {
-            // Error Handling
-            return new UserResponse($"An error occurred while deleting the User: {e.Message}");
-        }
     }
 }
