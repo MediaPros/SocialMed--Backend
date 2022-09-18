@@ -21,6 +21,7 @@ public class AppDbContext : DbContext
     public DbSet<Notification> Notifications { get; set; }
     
     public DbSet<Recommendation> Recommendations { get; set; }
+    
 
     public AppDbContext(DbContextOptions options) : base(options)
     {
