@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using SocialMed.API.Forums.Domain.Models;
 using SocialMed.API.Groups.Domain.Models;
 using SocialMed.API.Medical_Interconsultation.Domain.Models;
+using SocialMed.API.Reports.Domain.Models;
 using SocialMed.API.SocialMedCenter.Domain.Models;
 
 namespace SocialMed.API.Security.Domain.Models;
@@ -26,4 +27,6 @@ public class User
     
     public IList<Recommendation> Recommendations { get; set; } = new List<Recommendation>();
     public IList<Notification> Notifications { get; set; } = new List<Notification>();
+
+    public IList<Report> Reports { get; set; } = new List<Report>();
 }

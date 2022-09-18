@@ -18,6 +18,10 @@ using SocialMed.API.Medical_Interconsultation.Domain.Repositories;
 using SocialMed.API.Medical_Interconsultation.Domain.Services;
 using SocialMed.API.Medical_Interconsultation.Persistence.Repositories;
 using SocialMed.API.Medical_Interconsultation.Services;
+using SocialMed.API.Reports.Domain.Repositories;
+using SocialMed.API.Reports.Domain.Services;
+using SocialMed.API.Reports.Persistence.Repositories;
+using SocialMed.API.Reports.Services;
 using SocialMed.API.Security.Authorization.Handlers.Implementations;
 using SocialMed.API.Security.Authorization.Handlers.Interfaces;
 using SocialMed.API.Security.Authorization.Middleware;
@@ -130,6 +134,9 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IJwtHandler, JwtHandler>();
+
+builder.Services.AddScoped<IReportRepository, ReportRepository>();
+builder.Services.AddScoped<IReportService, ReportService>();
 
 
 

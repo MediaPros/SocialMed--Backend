@@ -5,6 +5,8 @@ using SocialMed.API.Groups.Domain.Models;
 using SocialMed.API.Groups.Resources;
 using SocialMed.API.Medical_Interconsultation.Domain.Models;
 using SocialMed.API.Medical_Interconsultation.Resources;
+using SocialMed.API.Reports.Domain.Models;
+using SocialMed.API.Reports.Resources;
 using SocialMed.API.Security.Domain.Models;
 using SocialMed.API.Security.Domain.Services.Communication;
 using SocialMed.API.Security.Resources;
@@ -25,6 +27,7 @@ public class ModelToResourceProfile : Profile
         CreateMap<User, UserResource>();
         CreateMap<Recommendation, RecommendationResource>();
         CreateMap<Notification, NotificationResource>();
-        
+        CreateMap<Report, ReportResource>();
+
     }
 }
