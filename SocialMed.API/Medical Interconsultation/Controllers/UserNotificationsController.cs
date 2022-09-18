@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using SocialMed.API.Medical_Interconsultation.Domain.Models;
 using SocialMed.API.Medical_Interconsultation.Domain.Services;
 using SocialMed.API.Medical_Interconsultation.Resources;
+using SocialMed.API.Security.Authorization.Attributes;
 
 namespace SocialMed.API.Medical_Interconsultation.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("/api/v1/users/{userId}/notifications")]
 public class UserNotificationsController

@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using SocialMed.API.Forums.Domain.Models;
 using SocialMed.API.Forums.Domain.Services;
 using SocialMed.API.Forums.Resources;
+using SocialMed.API.Security.Authorization.Attributes;
 
 namespace SocialMed.API.Forums.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("/api/v1/forums/{forumId}/ratings")]
 public class ForumRatingsController: ControllerBase

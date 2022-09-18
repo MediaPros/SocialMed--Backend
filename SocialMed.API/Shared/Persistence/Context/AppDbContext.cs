@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using SocialMed.API.Forums.Domain.Models;
 using SocialMed.API.Groups.Domain.Models;
 using SocialMed.API.Medical_Interconsultation.Domain.Models;
+using SocialMed.API.Reports.Domain.Models;
 using SocialMed.API.Security.Domain.Models;
 using SocialMed.API.Shared.Extensions;
 using SocialMed.API.SocialMedCenter.Domain.Models;
@@ -21,6 +22,8 @@ public class AppDbContext : DbContext
     public DbSet<Notification> Notifications { get; set; }
     
     public DbSet<Recommendation> Recommendations { get; set; }
+    
+    public DbSet<Report> Reports { get; set; }
 
     public AppDbContext(DbContextOptions options) : base(options)
     {
@@ -36,14 +39,11 @@ public class AppDbContext : DbContext
         builder.Entity<User>().Property(p => p.Name).IsRequired().HasMaxLength(50);
         builder.Entity<User>().Property(p => p.LastName).IsRequired().HasMaxLength(50);
         builder.Entity<User>().Property(p => p.Age).IsRequired();
-        builder.Entity<User>().Property(p => p.Image).IsRequired();
         builder.Entity<User>().Property(p => p.Email).IsRequired().HasMaxLength(200);
         builder.Entity<User>().Property(p => p.Specialist).IsRequired().HasMaxLength(70);
         builder.Entity<User>().Property(p => p.Recommendation).IsRequired();
         builder.Entity<User>().Property(p => p.WorkPlace).IsRequired();
-        builder.Entity<User>().Property(p => p.Password).IsRequired().HasMaxLength(80);
-        builder.Entity<User>().Property(p => p.Biography).IsRequired();
-        
+
         // Relationships
         builder.Entity<User>()
             .HasMany(p => p.Forums)
@@ -134,6 +134,18 @@ public class AppDbContext : DbContext
         builder.Entity<Recommendation>().Property(p => p.Id).IsRequired().ValueGeneratedOnAdd();
         builder.Entity<Recommendation>().Property(p => p.recommendationUserId).IsRequired();
         builder.Entity<Recommendation>().Property(p => p.recommendedUserId).IsRequired();
+
+        builder.Entity<Report>().ToTable("Reports");
+        builder.Entity<Report>().HasKey(p => p.Id);
+        builder.Entity<Report>().Property(p => p.Id).IsRequired().ValueGeneratedOnAdd();
+        builder.Entity<Report>().Property(p => p.Title).IsRequired().HasMaxLength(50);
+        builder.Entity<Report>().Property(p => p.Content).IsRequired();
+        builder.Entity<Report>().Property(p => p.Date).IsRequired();
+        builder.Entity<Report>().Property(p => p.UserId).IsRequired();
+
+        builder.Entity<User>().HasMany(p => p.Reports)
+            .WithOne(p => p.User)
+            .HasForeignKey(p => p.UserId);
 
         // Apply Snake Case Naming Convention
         

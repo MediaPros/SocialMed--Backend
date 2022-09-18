@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SocialMed.API.Security.Resources;
+namespace SocialMed.API.Security.Domain.Services.Communication;
 
-public class SaveUserResource
+public class RegisterRequest
 {
     [Required]
     [MaxLength(50)]
@@ -12,21 +12,16 @@ public class SaveUserResource
     public string LastName { get; set; }
     [Required]
     public int Age { get; set; }
-    [Required]
-    public string Image { get; set; }
-    [Required]
-    [MaxLength(200)]
-    public string Email { get; set; }
+    public string? Image { get; set; }
     [Required]
     [MaxLength(70)]
     public string Specialist { get; set; }
     [Required]
-    public int Recommendation { get; set; }
-    [Required]
     public string WorkPlace { get; set; }
+    public string? Biography { get; set; }
     [Required]
-    [MaxLength(80)]
+    [MaxLength(200)]
+    public string Email { get; set; }
+    [Required]
     public string Password { get; set; }
-    [Required]
-    public string Biography { get; set; }
 }

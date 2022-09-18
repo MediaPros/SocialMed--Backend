@@ -5,6 +5,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SocialMed.API.Forums.Domain.Services;
 using SocialMed.API.Forums.Resources;
+using SocialMed.API.Security.Authorization.Attributes;
 using SocialMed.API.Shared.Extensions;
 using SocialMed.API.SocialMedCenter.Domain.Models;
 using SocialMed.API.SocialMedCenter.Resources;
@@ -12,6 +13,7 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace SocialMed.API.Forums.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("/api/v1/[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
