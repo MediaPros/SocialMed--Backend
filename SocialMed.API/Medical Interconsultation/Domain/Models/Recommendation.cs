@@ -9,6 +9,4 @@ public class Recommendation
     
     public User userRecommendation { get; set; }
     public int recommendedUserId { get; set; }
-
-    public User userRecommended { get; set; }
 }
