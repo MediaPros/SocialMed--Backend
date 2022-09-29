@@ -30,6 +30,8 @@ public class MessageRepository :BaseRepository, IMessageRepository
     {
         return await _context.Messages
             .Include(p => p.Chat)
+            .Include(p =>p.User)
+            .Include(p =>p.UserDestiny)
             .FirstOrDefaultAsync(p => p.Id == id);
     }
 
