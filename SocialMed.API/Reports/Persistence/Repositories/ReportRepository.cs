@@ -14,10 +14,9 @@ public class ReportRepository : BaseRepository, IReportRepository
 
     public async Task<IEnumerable<Report>> ListAsync()
     {
-        return await _context.Reports.
-            Include(p => p.User).
-            Include(p => p.Title).
-            ToListAsync();
+        return await _context.Reports
+            .Include(p => p.User)
+            .ToListAsync();
     }
 
     public async Task AddAsync(Report report)
@@ -28,7 +27,7 @@ public class ReportRepository : BaseRepository, IReportRepository
     public async Task<Report> FindByIdAsync(int id)
     {
         return await _context.Reports
-            .Include(p => p.Title)
+            .Include(p => p.User)
             .FirstOrDefaultAsync(p => p.Id == id);
     }
 
