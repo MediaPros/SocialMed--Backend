@@ -36,10 +36,13 @@ public class RecommendationService : IRecommendationService
         
         if(existingRecommendedUser == null)
             return new RecommendationResponse("Invalid recommended user");
+
+        existingRecommendedUser.Recommendation++;
         
         try
         {
             await _recommendationRepository.AddAsync(recommendation);
+            _userRepository.Update(existingRecommendedUser);
             await _unitOfWork.CompleteAsync();
             return new RecommendationResponse(recommendation);
         }
@@ -54,9 +57,17 @@ public class RecommendationService : IRecommendationService
         var existingRecommendation = await _recommendationRepository.FindByIdAsync(id);
         if (existingRecommendation == null)
             return new RecommendationResponse("Recommendation not found.");
+
+        var recommendedUser = await _userRepository.FindByIdAsync(existingRecommendation.recommendedUserId);
+
+        if (recommendedUser != null)
+            recommendedUser.Recommendation--;
+
         try
         {
             _recommendationRepository.Remove(existingRecommendation);
+            if (recommendedUser != null)
+                _userRepository.Update(recommendedUser);
             await _unitOfWork.CompleteAsync();
             return new RecommendationResponse(existingRecommendation);
         }
