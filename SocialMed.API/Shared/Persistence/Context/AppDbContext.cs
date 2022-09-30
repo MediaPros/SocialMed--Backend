@@ -63,8 +63,7 @@ public class AppDbContext : DbContext
         builder.Entity<User>()
             .HasMany(p => p.Recommendations)
             .WithOne(p => p.userRecommendation)
-            .HasForeignKey(p => p.recommendationUserId)
-            .HasForeignKey(p => p.recommendedUserId);
+            .HasForeignKey(p => p.recommendationUserId);
 
         builder.Entity<User>()
             .HasMany(p => p.Notifications)

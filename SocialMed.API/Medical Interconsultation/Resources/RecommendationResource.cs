@@ -10,5 +10,4 @@ public class RecommendationResource
     public int recommendedUserId { get; set; }
     
     public UserResource userRecommendation { get; set; }
-    public UserResource userRecommended { get; set; }
 }

@@ -39,7 +39,7 @@ public class RecommendationRepository: BaseRepository, IRecommendationRepository
     {
         return await _context.Recommendations
             .Where(p => p.recommendedUserId == userId)
-            .Include(p => p.userRecommended)
+            .Include(p => p.userRecommendation)
             .ToListAsync();
     }
 
